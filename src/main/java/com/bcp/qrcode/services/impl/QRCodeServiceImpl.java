@@ -1,7 +1,7 @@
 package com.bcp.qrcode.services.impl;
 
 
-import com.bcp.qrcode.entities.Rib;
+
 import com.bcp.qrcode.repo.RibRepository;
 import com.bcp.qrcode.services.QRCodeService;
 import com.google.zxing.BarcodeFormat;
@@ -28,22 +28,14 @@ public class QRCodeServiceImpl implements QRCodeService {
     @Override
     public String generateQRCodeForUser(Long userId, int width, int height) throws IOException {
         // Fetch the RIB of the user from the database
-        Rib rib = ribRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("No RIB found for user with ID: " + userId));
-        System.out.println("Fetched RIB: " + rib.getRibNumber() + ", Username: " + rib.getUser().getUsername());
-        // Create the JSON object to encode in the QR code
-        String json = String.format("{\"user_id\": %d, \"username\": \"%s\", \"rib\": \"%s\"}",
-                rib.getUser().getId(),
-                rib.getUser().getUsername(),
-                rib.getRibNumber());
-        System.out.println("JSON to encode: " + json); // Debug output
+        String url = String.format("http://localhost:8080/api/qrcode/%d", userId);
 
         try {
 
-            System.out.println("Encoding JSON into QR Code: " + json);
+            // System.out.println("Encoding JSON into QR Code: " + json);
             // Generate QR Code
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
-            BitMatrix bitMatrix = qrCodeWriter.encode(json, BarcodeFormat.QR_CODE, width, height);
+            BitMatrix bitMatrix = qrCodeWriter.encode(url, BarcodeFormat.QR_CODE, width, height);
 
             BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             for (int x = 0; x < width; x++) {
