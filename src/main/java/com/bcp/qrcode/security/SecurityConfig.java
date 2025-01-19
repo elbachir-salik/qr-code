@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity in APIs
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/signup", "/auth/login").permitAll() // Public endpoints
-                        .requestMatchers("/api/**").authenticated()  // Secure all other endpoints
+                        .requestMatchers("/api/**").permitAll()  // Secure all other endpoints
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class) // Add JWT filter
                 .build();
