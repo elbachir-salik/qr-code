@@ -28,7 +28,7 @@ public class QRCodeServiceImpl implements QRCodeService {
     @Override
     public String generateQRCodeForUser(Long userId, int width, int height) throws IOException {
         // Fetch the RIB of the user from the database
-        String url = String.format("http://localhost:8080/api/qrcode/%d", userId);
+        String url = String.format("http://localhost:8081/api/qrcode/%d", userId);
 
         try {
 
