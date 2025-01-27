@@ -3,13 +3,23 @@ package com.bcp.qrcode.services.impl;
 import com.bcp.qrcode.entities.Rib;
 import com.bcp.qrcode.repo.RibRepository;
 import com.bcp.qrcode.services.PDFService;
+import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.UnitValue;
 import org.springframework.stereotype.Service;
 
+
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 
 @Service
 public class PDFServiceImpl implements PDFService {
@@ -21,36 +31,71 @@ public class PDFServiceImpl implements PDFService {
     }
 
     @Override
-    public byte[] generateRibCertificate(Long userId) {
-        // Fetch the RIB data from the database
+    public byte[] generateRibCertificate(Long userId) throws IOException {
+        // Fetch the RIB and user data
         Rib rib = ribRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("No RIB found for user with ID: " + userId));
 
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            // Set up the PDF writer and document
-            PdfWriter pdfWriter = new PdfWriter(out);
-            PdfDocument pdfDocument = new PdfDocument(pdfWriter);
-            Document document = new Document(pdfDocument);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter writer = new PdfWriter(outputStream);
+        PdfDocument pdfDocument = new PdfDocument(writer);
+        Document document = new Document(pdfDocument);
 
-            // Add content to the PDF
-            document.add(new Paragraph("RELEVE D’IDENTITE BANCAIRE"));
-            document.add(new Paragraph("Mr/Ms " + rib.getUser().getUsername()));
-            document.add(new Paragraph("Code Banque: " + rib.getCodeBanque()));
-            document.add(new Paragraph("Code Localité: " + rib.getCodeLocalite()));
-            document.add(new Paragraph("N° de Compte: " + rib.getNumeroCompte()));
-            document.add(new Paragraph("Clé R.I.B: " + rib.getCleRib()));
-            document.add(new Paragraph("Domiciliation: " + rib.getDomiciliation()));
-            document.add(new Paragraph("Code SWIFT: " + rib.getCodeSwift()));
-            document.add(new Paragraph("RIB Number: " + rib.getRibNumber()));
-            document.add(new Paragraph("Date: " + java.time.LocalDate.now()));
+        // Load Arabic font
+        String fontPath = "src/main/resources/fonts/Amiri-Regular.ttf"; // Update with the actual path to your font
+        PdfFont arabicFont = PdfFontFactory.createFont(fontPath, PdfEncodings.IDENTITY_H);
 
-            // Close the document
-            document.close();
+        // Add title
+        Paragraph title = new Paragraph("RELEVE D’IDENTITE BANCAIRE")
+                .setTextAlignment(TextAlignment.CENTER)
+                .setBold()
+                .setFontSize(16);
+        document.add(title);
 
-            // Return the PDF content as a byte array
-            return out.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to generate RIB certificate PDF", e);
-        }
+        // Add Arabic and French description
+        String arabicText = "البنكية الهوية كشف\nمن أجل خِدمتكم بشكل أفظل, تم إعداد هذا الكشف الخاص بكم, لتقدموه لدائنيكم أو " +
+                "مدينيكم المطالبين بتسجيل العمليات على حسابكم (كالتحويلات, او أداء المخالصة, أو غير ذلك ).\n" +
+                "إن استعمال هذا الكشف يضمن لكم تسجيلا أفضل للعمليات التي قمتم بها ويجنبكم الشكايات الناتجة عن الخطأ أو التأخير في الإدراج.";
+        String frenchText = "Pour plus de commodité, nous avons établi, pour vous, ce relevé, à remettre à vos créanciers ou " +
+                "débiteurs appelés à faire inscrire des opérations à votre compte (virements, paiement de quittance, etc.)\n" +
+                "Son utilisation vous garantit le bon enregistrement des opérations en cause et vous évite des réclamations pour erreur ou retards d’imputation.";
+
+        // Add Arabic text with right alignment
+        Paragraph arabicParagraph = new Paragraph(arabicText)
+                .setFont(arabicFont)
+                .setFontSize(12)
+                .setTextAlignment(TextAlignment.RIGHT);
+        document.add(arabicParagraph);
+
+        // Add French text with left alignment
+        Paragraph frenchParagraph = new Paragraph(frenchText)
+                .setFontSize(12)
+                .setTextAlignment(TextAlignment.LEFT);
+        document.add(frenchParagraph);
+
+        // Add table
+        Table table = new Table(2);
+        table.setWidth(UnitValue.createPercentValue(100));
+        table.addHeaderCell(new Cell().add(new Paragraph("Champ").setBold()));
+        table.addHeaderCell(new Cell().add(new Paragraph("Valeur").setBold()));
+        table.addCell(new Cell().add(new Paragraph("Code Banque")));
+        table.addCell(new Cell().add(new Paragraph(rib.getCodeBanque())));
+        table.addCell(new Cell().add(new Paragraph("Code Localité")));
+        table.addCell(new Cell().add(new Paragraph(rib.getCodeLocalite())));
+        table.addCell(new Cell().add(new Paragraph("N° de Compte")));
+        table.addCell(new Cell().add(new Paragraph(rib.getNumeroCompte())));
+        table.addCell(new Cell().add(new Paragraph("Clé R.I.B")));
+        table.addCell(new Cell().add(new Paragraph(rib.getCleRib())));
+        table.addCell(new Cell().add(new Paragraph("Domiciliation")));
+        table.addCell(new Cell().add(new Paragraph(rib.getDomiciliation())));
+        table.addCell(new Cell().add(new Paragraph("Code SWIFT")));
+        table.addCell(new Cell().add(new Paragraph(rib.getCodeSwift())));
+        table.addCell(new Cell().add(new Paragraph("RIB Number")));
+        table.addCell(new Cell().add(new Paragraph(rib.getRibNumber())));
+        document.add(table);
+
+        document.close();
+        return outputStream.toByteArray();
     }
+
 }
