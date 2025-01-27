@@ -53,9 +53,10 @@ public class PDFServiceImpl implements PDFService {
         document.add(title);
 
         // Add Arabic and French description
-        String arabicText = "البنكية الهوية كشف\nمن أجل خِدمتكم بشكل أفظل, تم إعداد هذا الكشف الخاص بكم, لتقدموه لدائنيكم أو " +
-                "مدينيكم المطالبين بتسجيل العمليات على حسابكم (كالتحويلات, او أداء المخالصة, أو غير ذلك ).\n" +
-                "إن استعمال هذا الكشف يضمن لكم تسجيلا أفضل للعمليات التي قمتم بها ويجنبكم الشكايات الناتجة عن الخطأ أو التأخير في الإدراج.";
+        String arabicText = "وﺃ ﻢﻜﻴﻨﺋﺍﺪﻟ هﻮﻣﺪﻘﺘﻟ, ﻢﻜﺑ صﺎﺨﻟﺍ ﻒﺸﻜﻟﺍ اﺬﻫ دﺍﺪﻋﺇ ﻢﺗ, ﻞﻈﻓﺃ ﻞﻜﺸﺑ ﻢﻜﺘﻣﺪِﺧ ﻞﺟﺃ ﻦﻣ\n" +
+                ". ﺔﺼﻟﺎﺨﻤﻟﺍ ءاﺩﺃ وﺍ, تﻼﻳﻮﺤﺘﻟﺎﻛﻢﻜﺑﺎﺴﺣ ﻰﻠﻋ تﺎﻴﻠﻤﻌﻠﻻ ﻞﻴﺠﺴﺘﺑ ﻦﻴﺒﻟﺎﻄﻤﻟﺍ ﻢﻜﻴﻨﻳﺪﻣ\n" +
+                "ﻢﻜﺒﻨﺠﻳﻭ ﺎﻬﺑ ﻢﺘﻤﻗ ﻲﺘﻟﺍ تﺎﻴﻠﻤﻌﻠﻟ ﻞﻀﻓﺃ ﻼﻴﺠﺴﺗ ﻢﻜﻟ ﻦﻤﻀﻳ ﻒﺸﻜﻟﺍ اﺬﻫ لﺎﻤﻌﺘﺳﺍ نﺇ\n" +
+                "جﺍﺭﺩﻹﺍ ﻲﻓ ﺮﻴﺧﺄﺘﻟﺍ وﺃ ﺄﻄﺨﻟﺍ ﻦﻋ ﺔﺠﺗﺎﻨﻟﺍ تﺎﻳﺎﻜﺸﻟﺍ";
         String frenchText = "Pour plus de commodité, nous avons établi, pour vous, ce relevé, à remettre à vos créanciers ou " +
                 "débiteurs appelés à faire inscrire des opérations à votre compte (virements, paiement de quittance, etc.)\n" +
                 "Son utilisation vous garantit le bon enregistrement des opérations en cause et vous évite des réclamations pour erreur ou retards d’imputation.";
@@ -76,8 +77,8 @@ public class PDFServiceImpl implements PDFService {
         // Add table
         Table table = new Table(2);
         table.setWidth(UnitValue.createPercentValue(100));
-        table.addHeaderCell(new Cell().add(new Paragraph("Champ").setBold()));
-        table.addHeaderCell(new Cell().add(new Paragraph("Valeur").setBold()));
+//        table.addHeaderCell(new Cell().add(new Paragraph("Champ").setBold()));
+//        table.addHeaderCell(new Cell().add(new Paragraph("Valeur").setBold()));
         table.addCell(new Cell().add(new Paragraph("Code Banque")));
         table.addCell(new Cell().add(new Paragraph(rib.getCodeBanque())));
         table.addCell(new Cell().add(new Paragraph("Code Localité")));
